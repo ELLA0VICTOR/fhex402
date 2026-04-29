@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment files — NEVER commit private keys
+.env
+.env.local
+.env.*.local
+packages/**/.env
+packages/**/.env.local
+
+# Build outputs
+dist/
+build/
+packages/frontend/dist/
+
+# Hardhat / Foundry
+packages/contracts/cache/
+packages/contracts/artifacts/
+packages/contracts/typechain-types/
+packages/contracts/ignition/deployments/
+packages/contracts/fhevmTemp/
+packages/contracts/deployments/
+packages/contracts/broadcast/
+packages/contracts/.openzeppelin/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+.nyc_output
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+.yarn/
+.turbo/
+.vite/
+.vercel/
+tmp/
+temp/

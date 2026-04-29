@@ -1,0 +1,9 @@
+cache/
+artifacts/
+typechain-types/
+fhevmTemp/
+deployments/
+broadcast/
+.openzeppelin/
+.env
+node_modules/

@@ -1,0 +1,19 @@
+{
+  "name": "fhex402",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=packages/frontend",
+    "dev:services": "npm run dev --workspace=packages/services",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:services\"",
+    "compile": "npm run compile --workspace=packages/contracts",
+    "deploy:sepolia": "npm run deploy:sepolia --workspace=packages/contracts",
+    "test": "npm run test --workspace=packages/contracts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
