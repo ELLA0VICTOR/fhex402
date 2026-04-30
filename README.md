@@ -353,26 +353,6 @@ Open:
 http://localhost:5173
 ```
 
-## Demo Script
-
-Suggested 3-minute flow:
-
-1. Open GhostPay and connect the company wallet on Ethereum Sepolia.
-2. Show Vault: deposit encrypted budget or show existing encrypted budget state.
-3. Show Payroll: encrypted roster is loaded; salary values are ciphertext handles.
-4. Click Run payroll cycle on Dashboard.
-5. Narrate the live log:
-   - Zama encrypted budget check
-   - x402 RosterAPI payment
-   - x402 ComplianceAPI payment
-   - x402 DisbursAPI payment
-   - confidential `gcUSDT` settlement
-6. Show Payroll receipts: transaction hashes and encrypted amount handles.
-7. Switch to an employee wallet and open Employee tab.
-8. Click Decrypt my balance and sign the EIP-712 request.
-9. Show that only the connected employee wallet can reveal its own balance.
-10. Show Audit tab for owner-only budget/spend reveal.
-
 ## Judge Test Access
 
 GhostPay includes a roster upload flow so judges can test with their own CSV instead of only using the prepared demo roster.
