@@ -373,6 +373,24 @@ Suggested 3-minute flow:
 9. Show that only the connected employee wallet can reveal its own balance.
 10. Show Audit tab for owner-only budget/spend reveal.
 
+## Judge Test Access
+
+GhostPay includes a roster upload flow so judges can test with their own CSV instead of only using the prepared demo roster.
+
+Roster upload is protected by `ROSTER_ADMIN_TOKEN`. The real token is intentionally not committed to this public repository because it lets anyone replace the active demo roster. For judging, share the temporary token privately in the hackathon submission form or private notes.
+
+Use [SUBMISSION_NOTES.example.md](SUBMISSION_NOTES.example.md) as the private submission-note template. A filled `SUBMISSION_NOTES.local.md` file is ignored by git.
+
+Judge flow:
+
+1. Open the live frontend.
+2. Connect a company wallet on Ethereum Sepolia.
+3. Go to Payroll.
+4. Paste the private roster admin token.
+5. Upload the CSV roster.
+6. Prepare the encrypted roster.
+7. Run the payroll cycle from Dashboard.
+
 ## Production Deployment Notes
 
 Contracts:
@@ -403,6 +421,7 @@ Secrets:
 
 - Never commit `.env`.
 - Never commit `.local.json` roster files.
+- Never commit the real `ROSTER_ADMIN_TOKEN`; share the demo token privately with judges.
 - Use testnet wallets only for demo deployment.
 
 ## Security Notes
