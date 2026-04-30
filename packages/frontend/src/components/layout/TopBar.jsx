@@ -25,7 +25,7 @@ export function TopBar({ sidebarOpen, showSidebarControls = false, onToggleSideb
   }
 
   return (
-    <header className="app-topbar">
+    <header className={`app-topbar ${isConnected ? "is-connected" : "is-disconnected"}`}>
       <div className="topbar-inner">
         <div className="topbar-brand-row">
           {showSidebarControls && (

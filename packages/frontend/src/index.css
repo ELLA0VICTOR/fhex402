@@ -4709,3 +4709,128 @@ video {
     font-size: 13.5px !important;
   }
 }
+
+/* Mobile landing/header polish: keep the first screen composed and app-like. */
+@media (max-width: 640px) {
+  .app-topbar {
+    min-height: 84px !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-inner {
+    min-height: 84px !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 0 14px 0 18px !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-brand-row {
+    justify-self: start !important;
+    justify-content: flex-start !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-actions {
+    width: auto !important;
+    grid-column: 2 !important;
+    justify-self: end !important;
+    justify-content: flex-end !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-connect {
+    width: auto !important;
+    min-width: 116px !important;
+    height: 52px !important;
+    padding: 0 16px !important;
+    font-size: 16px !important;
+  }
+
+  .app-topbar.is-connected .topbar-inner {
+    padding-left: 0 !important;
+    padding-right: 12px !important;
+  }
+
+  .app-topbar.is-connected .topbar-rail-toggle {
+    width: 56px !important;
+    height: 56px !important;
+    justify-content: center !important;
+  }
+
+  .connect-stage {
+    min-height: calc(100svh - 84px) !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    padding-top: 56px !important;
+  }
+
+  .connect-panel {
+    width: 100% !important;
+  }
+
+  .connect-copy {
+    min-height: auto !important;
+    width: 100% !important;
+  }
+
+  .connect-copy .connect-logo {
+    margin-left: 16px;
+  }
+
+  .connect-copy .eyebrow-row {
+    margin-top: 58px !important;
+  }
+
+  .connect-copy h1 {
+    max-width: 11ch;
+    font-size: clamp(36px, 10vw, 48px) !important;
+    line-height: 1.04 !important;
+  }
+
+  .connect-copy p {
+    max-width: 31ch !important;
+    font-size: 17px !important;
+    line-height: 1.8 !important;
+  }
+
+  .connect-button {
+    width: min(100%, 330px) !important;
+    min-width: 0 !important;
+    height: 60px !important;
+    margin-top: 30px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-topbar.is-disconnected .topbar-inner {
+    padding-left: 16px !important;
+    padding-right: 12px !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-brand {
+    gap: 10px !important;
+    font-size: 24px !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-brand-mark {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .app-topbar.is-disconnected .topbar-connect {
+    min-width: 108px !important;
+    height: 50px !important;
+    padding: 0 14px !important;
+  }
+
+  .app-main,
+  .app-body.has-sidebar .app-main {
+    padding-top: 42px !important;
+  }
+
+  .connect-stage {
+    padding-top: 48px !important;
+  }
+
+  .connect-copy h1 {
+    font-size: 36px !important;
+  }
+}
