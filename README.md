@@ -382,13 +382,23 @@ Contracts:
 Services:
 
 - Deploy `packages/services` as a long-running Node service.
-- Expose the four APIs under a single domain if possible:
+- The production entrypoint is `packages/services/server.js`.
+- It exposes the four APIs under one Render-compatible gateway:
 
 ```text
 /api/roster      -> RosterAPI
 /api/compliance  -> ComplianceAPI
 /api/disburse    -> DisbursAPI
 /api/agent       -> PayrollAgent
+```
+
+Suggested Render Web Service settings:
+
+```text
+Root Directory: leave blank
+Build Command: npm install
+Start Command: npm run start --workspace=packages/services
+Health Check Path: /health
 ```
 
 Frontend:

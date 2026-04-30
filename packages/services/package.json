@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start": "node server.js",
     "roster": "node roster-api/index.js",
     "compliance": "node compliance-api/index.js",
     "disburse": "node disburse-api/index.js",
