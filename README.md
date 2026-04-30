@@ -359,8 +359,6 @@ GhostPay includes a roster upload flow so judges can test with their own CSV ins
 
 Roster upload is protected by `ROSTER_ADMIN_TOKEN`. The real token is intentionally not committed to this public repository because it lets anyone replace the active demo roster. For judging, share the temporary token privately in the hackathon submission form or private notes.
 
-Use [SUBMISSION_NOTES.example.md](SUBMISSION_NOTES.example.md) as the private submission-note template. A filled `SUBMISSION_NOTES.local.md` file is ignored by git.
-
 Judge flow:
 
 1. Open the live frontend.
