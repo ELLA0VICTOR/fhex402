@@ -22,6 +22,19 @@ async function deployAgentVaultOrSkip(ctx, agentAddress) {
   }
 }
 
+async function deployGhostPayrollTokenOrSkip(ctx, agentAddress) {
+  const GhostPayrollToken = await ethers.getContractFactory("GhostPayrollToken");
+
+  try {
+    return await GhostPayrollToken.deploy(agentAddress);
+  } catch (error) {
+    if (isLocalFheRuntimeError(error)) {
+      ctx.skip();
+    }
+    throw error;
+  }
+}
+
 describe("fhex402", function () {
   let owner, agent, employee1;
 
@@ -112,12 +125,13 @@ describe("fhex402", function () {
       const ConfidentialPayroll = await ethers.getContractFactory(
         "ConfidentialPayroll"
       );
-      payroll = await ConfidentialPayroll.deploy(await agentVault.getAddress());
+      payroll = await ConfidentialPayroll.deploy(await agentVault.getAddress(), agent.address);
     });
 
     it("Should have correct employer and agentVault", async function () {
       expect(await payroll.employer()).to.equal(owner.address);
       expect(await payroll.agentVault()).to.equal(await agentVault.getAddress());
+      expect(await payroll.agent()).to.equal(agent.address);
     });
 
     it("Should start with zero employees", async function () {
@@ -132,6 +146,32 @@ describe("fhex402", function () {
 
     it("Should report unknown employees as inactive", async function () {
       expect(await payroll.isActive(employee1.address)).to.be.false;
+    });
+
+    it("Should allow employer to configure settlement token", async function () {
+      await payroll.setSettlementToken(employee1.address);
+      expect(await payroll.settlementToken()).to.equal(employee1.address);
+    });
+  });
+
+  describe("GhostPayrollToken", function () {
+    let token;
+
+    beforeEach(async function () {
+      token = await deployGhostPayrollTokenOrSkip(this, agent.address);
+    });
+
+    it("Should have confidential payroll token metadata", async function () {
+      expect(await token.name()).to.equal("Ghost Confidential USD");
+      expect(await token.symbol()).to.equal("gcUSDT");
+      expect(await token.decimals()).to.equal(6);
+      expect(await token.owner()).to.equal(owner.address);
+      expect(await token.agent()).to.equal(agent.address);
+    });
+
+    it("Should allow owner to configure payroll contract", async function () {
+      await token.setPayrollContract(employee1.address);
+      expect(await token.payrollContract()).to.equal(employee1.address);
     });
   });
 });

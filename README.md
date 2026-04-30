@@ -1,201 +1,178 @@
-# fhex402 — Private AI Payroll Rail
+# fhex402 / GhostPay
 
-> **FHE-encrypted enterprise payroll** powered by **Zama FHEVM** + **x402 micropayments**
+Private AI payroll rail built with Zama FHEVM and x402.
 
-fhex402 is an autonomous AI agent payroll protocol built for the **Zama FHE Hackathon**.
-An AI agent executes the full payroll cycle by paying for three real HTTP services
-via the x402 payment protocol. All salary amounts and budgets are encrypted on-chain
-using **Fully Homomorphic Encryption** — nobody on the network sees what was paid or to whom.
+GhostPay lets a company run a payroll cycle through an autonomous server-side agent. The agent pays three HTTP services through x402, while the payroll budget checks and audit trail stay encrypted on Zama FHEVM smart contracts deployed to Ethereum Sepolia.
 
----
+## What It Does
 
-## Architecture
+1. The company deploys `AgentVault` and `ConfidentialPayroll` on Ethereum Sepolia.
+2. The company deposits an encrypted payroll budget into `AgentVault`.
+3. A server-side payroll agent runs the cycle:
+   - pays `RosterAPI` over x402 and receives encrypted employee records
+   - pays `ComplianceAPI` over x402 and validates eligibility
+   - pays `DisbursAPI` over x402 and settles encrypted payroll token transfers
+4. Before each paid service call, `AgentVault` checks encrypted spend against encrypted budget with FHE.
+5. The owner can later request a private audit/decryption flow for budget totals.
 
-```
-                    ┌─────────────────────┐
-                    │   AgentVault.sol     │
-                    │  (Sepolia + FHEVM)  │
-                    │                     │
-                    │  encryptedBudget    │
-                    │  encryptedSpent     │
-                    │  TFHE.le(·) check   │
-                    └────────┬────────────┘
-                             │ authorizeServicePayment()
-                             │ (FHE budget enforcement)
-                    ┌────────▼────────────┐
-                    │   AI Payroll Agent   │
-                    │  (browser wallet)    │
-                    └────┬──────┬─────┬───┘
-                x402 $   │      │     │  x402 $
-              ┌──────────▼──┐ ┌─▼──┐ ┌▼──────────┐
-              │  RosterAPI  │ │ CA │ │ DisbursAPI │
-              │  :3001      │ │:02 │ │   :3003    │
-              │  $0.10 USDC │ │$0.25│ │ $0.50 USDC │
-              └─────────────┘ └────┘ └────────────┘
-```
+## Network Split
 
-### Contracts
+| Layer | Network | Why |
+| --- | --- | --- |
+| Zama FHE contracts | Ethereum Sepolia `11155111` | Required FHEVM host chain for the confidential dApp |
+| x402 service payments | Base Sepolia `eip155:84532` | Supported by the public x402 test facilitator |
+| Salary settlement | Ethereum Sepolia `11155111` | Uses `GhostPayrollToken` confidential balances and encrypted transfer amounts |
+
+The confidential smart-contract app remains on Ethereum Sepolia. Base Sepolia is only used as the low-cost x402 service-fee rail, not as the private salary rail.
+
+## Packages
+
+| Package | Purpose |
+| --- | --- |
+| `packages/contracts` | Hardhat + Solidity + Zama FHEVM contracts |
+| `packages/frontend` | Vite React UI |
+| `packages/services` | RosterAPI, ComplianceAPI, DisbursAPI, and PayrollAgent |
+
+## Contracts
+
 | Contract | Purpose |
-|----------|---------|
-| `AgentVault.sol` | FHE vault holding encrypted budget · enforces spend limits with `TFHE.le()` |
-| `ConfidentialPayroll.sol` | Encrypted `euint64` salary records per employee |
-| `fhex402Registry.sol` | On-chain service + agent registry |
+| --- | --- |
+| `AgentVault.sol` | Encrypted budget, encrypted spent total, FHE budget enforcement |
+| `ConfidentialPayroll.sol` | Encrypted employee salary records |
+| `GhostPayrollToken.sol` | ERC-7984-style confidential payroll settlement token |
+| `fhex402Registry.sol` | Registry for agent/services metadata |
 
-### x402 Services
-| Service | Port | Cost | Purpose |
-|---------|------|------|---------|
-| RosterAPI | 3001 | $0.10 USDC | Returns encrypted employee roster |
-| ComplianceAPI | 3002 | $0.25 USDC | Validates jurisdiction, eligibility, tax band |
-| DisbursAPI | 3003 | $0.50 USDC | Executes encrypted batch salary transfers |
+## Services
 
----
+| Service | Port | x402 Cost |
+| --- | --- | --- |
+| RosterAPI | `3001` | `$0.001` |
+| ComplianceAPI | `3002` | `$0.001` |
+| DisbursAPI | `3003` | `$0.001` |
+| PayrollAgent | `3004` | Internal agent API |
 
-## Quick Start
+## Setup
 
-### 1. Install Dependencies
+Install dependencies:
 
 ```bash
-git clone https://github.com/yourhandle/fhex402
-cd fhex402
 npm install
 ```
 
-### 2. Configure Environment
+Create local env files from the examples:
 
 ```bash
-cp .env.example .env
-# Fill in your values:
-# - PRIVATE_KEY (deployer wallet)
-# - SEPOLIA_RPC_URL (Infura / Alchemy)
-# - ETHERSCAN_API_KEY (for verification)
-# - ROSTER_WALLET_ADDRESS, COMPLIANCE_WALLET_ADDRESS, DISBURSE_WALLET_ADDRESS
-# - FHEVM_* addresses from https://docs.zama.org/protocol/protocol-apps/addresses/testnet/sepolia
+copy packages\contracts\.env.example packages\contracts\.env
+copy packages\frontend\.env.example packages\frontend\.env
+copy packages\services\.env.example packages\services\.env
 ```
 
-### 3. Compile & Deploy Contracts
+Fill the env values locally. Never commit real `.env` files.
+
+## Deploy
+
+Compile and test:
 
 ```bash
-# Compile
 npm run compile
-
-# Deploy to Sepolia
-npm run deploy:sepolia
-
-# Copy output addresses into packages/frontend/.env:
-# VITE_AGENT_VAULT_ADDRESS=0x...
-# VITE_CONFIDENTIAL_PAYROLL_ADDRESS=0x...
+npm test
 ```
 
-### 4. Start Everything
+Deploy to Ethereum Sepolia:
 
 ```bash
-# Starts frontend (port 5173) + all 3 x402 services concurrently
-npm run dev
+npm run deploy:sepolia
 ```
 
-### 5. Demo Flow (3 minutes)
+Copy the deployed contract addresses into:
 
-1. Open `http://localhost:5173`
-2. Connect MetaMask (switch to Sepolia Testnet)
-3. Deposit an encrypted budget via **Agent Vault** → "Deposit Budget"
-4. Confirm all 3 services show **ONLINE** in the status bar
-5. Click **"Run Payroll Cycle"** — watch the agent:
-   - Pay RosterAPI $0.10 USDC via x402
-   - Pay ComplianceAPI $0.25 USDC via x402
-   - Pay DisbursAPI $0.50 USDC via x402
-   - All budget checks enforced by FHE on AgentVault
-6. View encrypted salary ciphertexts in the roster table
-7. Open **Audit** → **"Decrypt My Budget"** — FHE reveal moment
-
----
-
-## Project Structure
-
-```
-fhex402/
-├── packages/
-│   ├── contracts/          # Hardhat + Zama FHEVM
-│   │   ├── contracts/
-│   │   │   ├── AgentVault.sol
-│   │   │   ├── ConfidentialPayroll.sol
-│   │   │   └── fhex402Registry.sol
-│   │   └── scripts/deploy.js
-│   │
-│   ├── frontend/           # Vite + React 19 + Tailwind
-│   │   └── src/
-│   │       ├── pages/      # Dashboard, Payroll, Vault, Audit
-│   │       ├── components/ # vault, agent, payroll, services, layout, icons
-│   │       ├── hooks/      # useAgentVault, usePayrollAgent, useFhevm, useWallet
-│   │       └── lib/        # fhevm.js, wagmi.js, x402.js, contracts.js
-│   │
-│   └── services/           # Three real x402 Express servers
-│       ├── roster-api/     # port 3001
-│       ├── compliance-api/ # port 3002
-│       └── disburse-api/   # port 3003
-└── package.json            # npm workspaces monorepo
+```bash
+packages/frontend/.env
+packages/services/.env
 ```
 
----
+The deploy script prints all required variables, including `VITE_CONFIDENTIAL_PAYROLL_TOKEN_ADDRESS` and `CONFIDENTIAL_PAYROLL_TOKEN_ADDRESS`.
+
+## Run Locally
+
+Prepare the encrypted roster after deployment:
+
+```bash
+npm run prepare:roster --workspace=packages/services
+```
+
+You can also use the Payroll tab in the app to upload JSON/CSV. Both paths encrypt salary values, register employees on `ConfidentialPayroll`, fund `GhostPayrollToken`, and write the safe roster file used by `RosterAPI`.
+
+Plain roster input shape:
+
+```json
+{
+  "employees": [
+    {
+      "id": "emp-001",
+      "name": "Employee One",
+      "wallet": "0x...",
+      "salaryUSDC": "1250.00",
+      "department": "Engineering",
+      "jurisdiction": "US",
+      "employedSince": "2024-01-01"
+    }
+  ]
+}
+```
+
+The `.local.json` roster files are gitignored.
+
+Start services:
+
+```bash
+npm run dev:services
+```
+
+Start frontend:
+
+```bash
+npm run dev:frontend
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+## Demo Flow
+
+1. Connect MetaMask on Ethereum Sepolia.
+2. Deposit an encrypted budget into the vault.
+3. Make sure the services are online.
+4. Upload/configure an encrypted roster for `RosterAPI`.
+5. Click `Run payroll cycle`.
+6. Watch the agent pay each x402 service, update the encrypted vault state, and produce confidential payroll token receipts.
+7. Use the audit tab to request/decrypt budget totals.
+
+## Important Notes
+
+- Real secrets belong only in local `.env` files.
+- Testnet USDC has no real financial value.
+- Salary handles are expected to be encrypted before they reach the roster service.
+- Salary settlement defaults to the confidential payroll token:
+
+```env
+DISBURSEMENT_MODE=confidential_token
+CONFIDENTIAL_PAYROLL_ADDRESS=0x...
+CONFIDENTIAL_PAYROLL_TOKEN_ADDRESS=0x...
+```
+
+- Base Sepolia USDC remains the x402 fee rail. It is not used to prove private salary amounts.
 
 ## Tech Stack
 
 | Layer | Tech |
-|-------|------|
-| Smart Contracts | Solidity 0.8.24 + Zama FHEVM + Hardhat |
-| Frontend | Vite + React 19 + Tailwind CSS v3 |
-| FHE Client | fhevmjs (Zama browser SDK) |
-| Wallet | Wagmi v2 + viem |
-| Services | Node.js + Express + x402 protocol |
-| Chain | Ethereum Sepolia Testnet |
-
----
-
-## FHE Design
-
-The key FHE operation in `AgentVault.sol`:
-
-```solidity
-euint64 newTotal = TFHE.add(encryptedSpent, paymentAmount);
-ebool canPay = TFHE.le(newTotal, encryptedBudget);  // encrypted comparison
-encryptedSpent = TFHE.select(canPay, newTotal, encryptedSpent);
-```
-
-- `TFHE.add()` — add encrypted values without decrypting
-- `TFHE.le()` — compare encrypted values, result is encrypted `ebool`
-- `TFHE.select()` — conditional update based on encrypted boolean
-- `Gateway.requestDecryption()` — async owner-only budget reveal
-
-**Nobody on-chain ever sees a plaintext salary amount.**
-
----
-
-## Resources
-
-- [Zama FHEVM Docs](https://docs.zama.ai/fhevm)
-- [Zama Sepolia Addresses](https://docs.zama.org/protocol/protocol-apps/addresses/testnet/sepolia)
-- [FHEVM React Template](https://github.com/zama-ai/fhevm-react-template)
-- [x402 Protocol](https://x402.org)
-- [fhevmjs SDK](https://github.com/zama-ai/fhevmjs)
-
----
-
-## Environment Variables Reference
-
-| Variable | Description |
-|----------|-------------|
-| `PRIVATE_KEY` | Deployer/owner wallet private key |
-| `AGENT_ADDRESS` | AI agent wallet address |
-| `SEPOLIA_RPC_URL` | Sepolia RPC endpoint |
-| `ETHERSCAN_API_KEY` | For contract verification |
-| `FHEVM_GATEWAY_ADDRESS` | Zama Gateway on Sepolia |
-| `FHEVM_ACL_ADDRESS` | Zama ACL on Sepolia |
-| `VITE_AGENT_VAULT_ADDRESS` | Deployed AgentVault address |
-| `VITE_CONFIDENTIAL_PAYROLL_ADDRESS` | Deployed ConfidentialPayroll address |
-| `DEMO_MODE` | `true` = simulated transfers, `false` = real USDC |
-| `ROSTER_WALLET_ADDRESS` | Receives RosterAPI x402 payments |
-| `COMPLIANCE_WALLET_ADDRESS` | Receives ComplianceAPI x402 payments |
-| `DISBURSE_WALLET_ADDRESS` | Receives DisbursAPI x402 payments |
-
----
-
-Built for the **Zama FHE Hackathon 2024** · MIT License
+| --- | --- |
+| Smart contracts | Solidity, Hardhat, Zama FHEVM |
+| Frontend | Vite, React, Tailwind CSS |
+| FHE client | `@zama-fhe/relayer-sdk` |
+| Services | Node.js, Express |
+| x402 | `@x402/express`, `@x402/fetch`, `@x402/evm` |
+| Blockchain client | viem |

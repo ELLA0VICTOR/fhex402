@@ -1,26 +1,14 @@
-import { useState } from "react";
-import { useAccount } from "wagmi";
-import { ShieldIcon, UnlockIcon, LockIcon, ExternalLinkIcon, CheckIcon } from "@/components/icons";
+import { useEffect, useState } from "react";
+import { useAccount, usePublicClient } from "wagmi";
+import { ShieldIcon, UnlockIcon, LockIcon, CheckIcon } from "@/components/icons";
 import { useAgentVault } from "@/hooks/useAgentVault";
 import { formatAddress } from "@/lib/utils";
 import { formatCiphertext } from "@/lib/fhevm";
 import { CONTRACTS } from "@/lib/contracts";
 
-const DEMO_CYCLES = [
-  {
-    id: 1,
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    employees: 5,
-    cleared: 5,
-    dispatched: 5,
-    serviceCost: 0.85,
-    completed: true,
-    rosterHash: "0x1a4f8b2c9d3e7f01a5b6c2d8e9f0a1b2",
-  },
-];
-
 export function Audit() {
   const { address, isConnected } = useAccount();
+  const publicClient = usePublicClient();
   const {
     cycleCount,
     lastDecryptedBudget,
@@ -34,10 +22,41 @@ export function Audit() {
   const [decrypting, setDecrypting] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState(null);
+  const [cycles, setCycles] = useState([]);
 
   const hasDecrypted = lastDecryptedBudget !== undefined && lastDecryptedBudget > 0n;
   const budget = hasDecrypted ? Number(lastDecryptedBudget) / 1_000_000 : null;
   const spent = hasDecrypted && lastDecryptedSpent > 0n ? Number(lastDecryptedSpent) / 1_000_000 : null;
+
+  useEffect(() => {
+    async function loadCycles() {
+      if (!publicClient || !hasContract || Number(cycleCount || 0) === 0) {
+        setCycles([]);
+        return;
+      }
+
+      const count = Number(cycleCount);
+      const next = [];
+      for (let id = 1; id <= count; id++) {
+        const [cycleId, timestamp, rosterHash, completed] = await publicClient.readContract({
+          address: CONTRACTS.AgentVault.address,
+          abi: CONTRACTS.AgentVault.abi,
+          functionName: "getCycle",
+          args: [BigInt(id)],
+        });
+        next.push({
+          id: Number(cycleId),
+          timestamp: Number(timestamp) * 1000,
+          rosterHash,
+          completed,
+          serviceCost: 0.003,
+        });
+      }
+      setCycles(next);
+    }
+
+    loadCycles().catch((err) => console.warn("[Audit] failed to load cycles:", err));
+  }, [cycleCount, hasContract, publicClient]);
 
   async function handleDecrypt() {
     if (!hasContract) return;
@@ -183,7 +202,7 @@ export function Audit() {
                 { label: "Total Budget",    value: `$${budget.toFixed(2)} USDC`,                                   color: "var(--text-primary)" },
                 { label: "Total Spent",     value: spent ? `$${spent.toFixed(2)} USDC` : "$0.00",                  color: "var(--red)" },
                 { label: "Remaining",       value: `$${(budget - (spent || 0)).toFixed(2)} USDC`,                  color: "var(--green)" },
-                { label: "Service Costs",   value: "$0.85 USDC",                                                   color: "var(--accent)" },
+                { label: "Service Costs",   value: "$0.003 USDC",                                                  color: "var(--accent)" },
                 { label: "Cycles Run",      value: cycleCount?.toString() ?? "0",                                  color: "var(--text-secondary)" },
               ].map(({ label, value, color }) => (
                 <div key={label} className="flex items-center justify-between text-xs">
@@ -238,7 +257,7 @@ export function Audit() {
               </span>
             </div>
 
-            {Number(cycleCount ?? 0) === 0 ? (
+            {cycles.length === 0 ? (
               <div className="audit-empty-state">
                 <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                   No cycles run yet. Go to Dashboard and click Run Payroll Cycle.
@@ -246,7 +265,7 @@ export function Audit() {
               </div>
             ) : (
               <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-                {DEMO_CYCLES.map((cycle) => (
+                {cycles.map((cycle) => (
                   <div
                     key={cycle.id}
                     className="px-4 py-3 cursor-pointer transition-colors"
@@ -279,9 +298,8 @@ export function Audit() {
                     {selectedCycle === cycle.id && (
                       <div className="mt-3 space-y-2 animate-fade-in">
                         {[
-                          { label: "Employees", value: String(cycle.employees) },
-                          { label: "Cleared",   value: String(cycle.cleared) },
-                          { label: "Dispatched", value: String(cycle.dispatched) },
+                          { label: "Status", value: cycle.completed ? "Completed" : "Open" },
+                          { label: "Service Cost", value: `$${cycle.serviceCost.toFixed(3)} USDC` },
                           { label: "Roster Hash", value: formatCiphertext(cycle.rosterHash) },
                         ].map(({ label, value }) => (
                           <div key={label} className="flex items-center justify-between text-[11px]">

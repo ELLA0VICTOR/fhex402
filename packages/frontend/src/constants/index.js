@@ -7,16 +7,16 @@ export const ZAMA_GATEWAY_SEPOLIA =
   import.meta.env.VITE_FHEVM_GATEWAY_URL || "https://gateway.sepolia.zama.ai";
 
 export const SERVICE_COSTS = {
-  roster: 100000,     // $0.10 USDC (6 decimals)
-  compliance: 250000, // $0.25 USDC
-  disburse: 500000,   // $0.50 USDC
-  total: 850000,      // $0.85 USDC per full cycle
+  roster: 1000,       // $0.001 USDC (6 decimals)
+  compliance: 1000,   // $0.001 USDC
+  disburse: 1000,     // $0.001 USDC
+  total: 3000,        // $0.003 USDC per full cycle
 };
 
 export const CYCLE_STEPS = [
-  { id: "roster",     label: "Fetch Roster",       service: "RosterAPI",     cost: "$0.10" },
-  { id: "compliance", label: "Compliance Check",   service: "ComplianceAPI", cost: "$0.25" },
-  { id: "disburse",   label: "Batch Disburse",     service: "DisbursAPI",    cost: "$0.50" },
+  { id: "roster",     label: "Fetch Roster",       service: "RosterAPI",     cost: "$0.001" },
+  { id: "compliance", label: "Compliance Check",   service: "ComplianceAPI", cost: "$0.001" },
+  { id: "disburse",   label: "Batch Disburse",     service: "DisbursAPI",    cost: "$0.001" },
   { id: "complete",   label: "Cycle Complete",      service: null,            cost: null },
 ];
 

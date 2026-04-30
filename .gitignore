@@ -24,6 +24,7 @@ packages/contracts/fhevmTemp/
 packages/contracts/deployments/
 packages/contracts/broadcast/
 packages/contracts/.openzeppelin/
+packages/services/roster-api/data/*.local.json
 
 # Logs
 *.log

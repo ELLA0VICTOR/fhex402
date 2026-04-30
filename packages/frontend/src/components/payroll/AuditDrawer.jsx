@@ -38,7 +38,7 @@ export function AuditDrawer({ open, onClose, agentState }) {
 
   if (!open) return null;
 
-  const totalServices = 0.10 + 0.25 + 0.50;
+  const totalServices = 0.001 + 0.001 + 0.001;
   const employeeCount = roster?.roster?.length ?? 0;
   const dispatchedCount = disbursementResults?.summary?.totalDispatched ?? 0;
 
@@ -152,9 +152,9 @@ export function AuditDrawer({ open, onClose, agentState }) {
               Service Costs (This Cycle)
             </div>
             {[
-              { label: "RosterAPI", cost: "$0.10 USDC", service: "x402 payment" },
-              { label: "ComplianceAPI", cost: "$0.25 USDC", service: "x402 payment" },
-              { label: "DisbursAPI", cost: "$0.50 USDC", service: "x402 payment" },
+              { label: "RosterAPI", cost: "$0.001 USDC", service: "x402 payment" },
+              { label: "ComplianceAPI", cost: "$0.001 USDC", service: "x402 payment" },
+              { label: "DisbursAPI", cost: "$0.001 USDC", service: "x402 payment" },
             ].map(({ label, cost, service }) => (
               <div
                 key={label}
@@ -175,7 +175,7 @@ export function AuditDrawer({ open, onClose, agentState }) {
                 Total Service Cost
               </span>
               <span className="text-sm font-semibold font-mono" style={{ color: "var(--accent)" }}>
-                $0.85 USDC
+                $0.003 USDC
               </span>
             </div>
           </div>

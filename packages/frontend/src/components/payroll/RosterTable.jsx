@@ -14,7 +14,7 @@ export function RosterTable({ roster, complianceResults, disbursementResults }) 
   }
 
   return (
-    <div className="card overflow-hidden">
+    <div className="card overflow-hidden roster-table-card">
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
         <div>
           <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
@@ -28,7 +28,7 @@ export function RosterTable({ roster, complianceResults, disbursementResults }) 
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm roster-table">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border)" }}>
               {["Employee", "Wallet", "Department", "Region", "Salary", "Compliance", "Payment"].map((heading) => (
@@ -99,16 +99,28 @@ export function RosterTable({ roster, complianceResults, disbursementResults }) 
                   <td className="px-4 py-3">
                     {disburse ? (
                       sent && disburse.txHash ? (
-                        <a
-                          href={`https://sepolia.etherscan.io/tx/${disburse.txHash}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 mono text-xs"
-                          style={{ color: "var(--text-secondary)" }}
-                        >
-                          {disburse.txHash.slice(0, 8)}...
-                          <ExternalLinkIcon className="w-3 h-3" style={{ color: "var(--text-muted)" }} />
-                        </a>
+                        <div className="space-y-1">
+                          <a
+                            href={disburse.txUrl || `https://sepolia.etherscan.io/tx/${disburse.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 mono text-xs"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            {disburse.txHash.slice(0, 8)}...
+                            <ExternalLinkIcon className="w-3 h-3" style={{ color: "var(--text-muted)" }} />
+                          </a>
+                          <div className="mono text-xs" style={{ color: "var(--text-muted)" }}>
+                            {disburse.settlement === "confidential_token"
+                              ? `${disburse.tokenSymbol || "gcUSDT"} encrypted`
+                              : disburse.tokenSymbol || "USDC"}
+                          </div>
+                          {disburse.encryptedAmountRef && (
+                            <div className="encrypted-value">
+                              {formatCiphertext(disburse.encryptedAmountRef)}
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <span className="mono text-xs" style={{ color: "var(--red)" }}>
                           FAILED

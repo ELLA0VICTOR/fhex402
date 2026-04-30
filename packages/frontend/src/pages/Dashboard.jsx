@@ -19,9 +19,9 @@ import { usePayrollAgent } from "@/hooks/usePayrollAgent";
 import { checkServicesHealth } from "@/lib/x402";
 
 const SERVICE_META = {
-  roster: { label: "RosterAPI", port: "3001", price: "$0.10", Icon: RosterIcon },
-  compliance: { label: "ComplianceAPI", port: "3002", price: "$0.25", Icon: ComplianceIcon },
-  disburse: { label: "DisbursAPI", port: "3003", price: "$0.50", Icon: DisbursIcon },
+  roster: { label: "RosterAPI", port: "3001", price: "$0.001", Icon: RosterIcon },
+  compliance: { label: "ComplianceAPI", port: "3002", price: "$0.001", Icon: ComplianceIcon },
+  disburse: { label: "DisbursAPI", port: "3003", price: "$0.001", Icon: DisbursIcon },
 };
 
 export function Dashboard() {
@@ -47,6 +47,8 @@ export function Dashboard() {
   const servicesOnline =
     Object.values(servicesHealth).length > 0 &&
     Object.values(servicesHealth).every((service) => service.online);
+  const rosterReady =
+    servicesHealth.roster?.rosterConfigured === true && Number(servicesHealth.roster?.employeeCount || 0) > 0;
 
   if (!isConnected) {
     return <ConnectPrompt />;
@@ -65,6 +67,8 @@ export function Dashboard() {
             onRun={runPayrollCycle}
             onReset={resetAgent}
             servicesOnline={servicesOnline}
+            rosterReady={rosterReady}
+            rosterHealth={servicesHealth.roster}
           />
 
           <div className="dashboard-side-rail">
@@ -106,7 +110,7 @@ function DashboardHeader() {
   );
 }
 
-function CycleWorkbench({ agentState, onRun, onReset, servicesOnline }) {
+function CycleWorkbench({ agentState, onRun, onReset, servicesOnline, rosterReady, rosterHealth }) {
   const { complianceResults, currentStep, cycleId, disbursementResults, error, roster, running } = agentState;
   const currentIndex = CYCLE_STEPS.findIndex((step) => step.id === currentStep);
   const isComplete = currentStep === "complete";
@@ -119,6 +123,7 @@ function CycleWorkbench({ agentState, onRun, onReset, servicesOnline }) {
     disbursementResults?.summary?.totalDispatched ??
     disbursementResults?.disbursements?.filter((result) => result.status === "SENT").length ??
     0;
+  const ready = servicesOnline && rosterReady;
 
   return (
     <section className="workbench-panel">
@@ -130,9 +135,9 @@ function CycleWorkbench({ agentState, onRun, onReset, servicesOnline }) {
         <span className="state-label">
           <span
             className="status-dot"
-            style={{ background: running ? "var(--yellow)" : isComplete || servicesOnline ? "var(--green)" : "var(--red)" }}
+            style={{ background: running ? "var(--yellow)" : isComplete || ready ? "var(--green)" : "var(--red)" }}
           />
-          {running ? "Running" : isComplete ? "Complete" : servicesOnline ? "Ready" : "Offline"}
+          {running ? "Running" : isComplete ? "Complete" : !rosterReady ? "Roster needed" : servicesOnline ? "Ready" : "Offline"}
         </span>
       </div>
 
@@ -140,6 +145,16 @@ function CycleWorkbench({ agentState, onRun, onReset, servicesOnline }) {
         <span>Cycle</span>
         <span>{cycleId || "Not started"}</span>
       </div>
+
+      <OperationStatus
+        currentStep={currentStep}
+        running={running}
+        error={error}
+        isComplete={isComplete}
+        rosterReady={rosterReady}
+        rosterHealth={rosterHealth}
+        servicesOnline={servicesOnline}
+      />
 
       <div className="cycle-stepper">
         {CYCLE_STEPS.map((step, index) => {
@@ -173,7 +188,7 @@ function CycleWorkbench({ agentState, onRun, onReset, servicesOnline }) {
       <div className="workbench-actions">
         <button
           onClick={onRun}
-          disabled={running || (!servicesOnline && !import.meta.env.DEV)}
+          disabled={running || !servicesOnline || !rosterReady}
           className="btn-primary workbench-run"
         >
           <PayrollIcon className="w-4 h-4" />
@@ -186,6 +201,58 @@ function CycleWorkbench({ agentState, onRun, onReset, servicesOnline }) {
         )}
       </div>
     </section>
+  );
+}
+
+function OperationStatus({ currentStep, running, error, isComplete, rosterReady, rosterHealth, servicesOnline }) {
+  const copy = {
+    roster: {
+      title: "Zama budget check, then x402 RosterAPI",
+      body: "The agent encrypts the service fee, asks AgentVault to approve it privately, then pays RosterAPI over x402.",
+    },
+    compliance: {
+      title: "Zama budget check, then x402 ComplianceAPI",
+      body: "The roster is checked for eligibility while the service fee is added to encrypted spend on AgentVault.",
+    },
+    disburse: {
+      title: "Zama budget check, then confidential gcUSDT settlement",
+      body: "DisbursAPI is paid through x402, then salaries settle through the Zama confidential payroll token.",
+    },
+    complete: {
+      title: "Cycle complete",
+      body: "The encrypted audit state is finalized. Use Payroll for receipts or Audit for owner-only budget reveal.",
+    },
+  };
+
+  const state = error
+    ? { title: "Action needed", body: error }
+    : isComplete
+      ? copy.complete
+      : running
+        ? copy[currentStep] || copy.roster
+        : !rosterReady
+          ? {
+              title: "Roster not loaded",
+              body: `RosterAPI is reachable but has ${rosterHealth?.employeeCount ?? 0} active employees. Prepare the encrypted roster in Payroll, then restart services if needed.`,
+            }
+          : !servicesOnline
+            ? {
+                title: "Service offline",
+                body: "Start the x402 services before running the payroll agent.",
+              }
+        : {
+            title: "Ready when roster and budget are prepared",
+            body: "Prepare the encrypted roster in Payroll, deposit an encrypted budget in Vault, then run the cycle.",
+          };
+
+  return (
+    <div className={`operation-status ${error ? "error" : running ? "running" : isComplete ? "complete" : ""}`}>
+      {running && <span className="status-loader" />}
+      <div>
+        <strong>{state.title}</strong>
+        <p>{state.body}</p>
+      </div>
+    </div>
   );
 }
 
@@ -255,12 +322,18 @@ function ServiceMesh({ health }) {
         {entries.map(([key, service]) => {
           const online = health[key]?.online;
           const Icon = service.Icon;
+          const detail =
+            key === "roster" && Number.isFinite(Number(health[key]?.employeeCount))
+              ? `${health[key].employeeCount} active / ${service.price}`
+              : key === "disburse" && health[key]?.disbursement?.label
+              ? `${service.price} / ${health[key].disbursement.tokenSymbol || "gcUSDT"}`
+              : `:${service.port} / ${service.price}`;
           return (
             <div key={key} className="service-row">
               <Icon className="w-4 h-4" />
               <div className="min-w-0">
                 <strong>{service.label}</strong>
-                <span>:{service.port} / {service.price}</span>
+                <span>{detail}</span>
               </div>
               <span
                 className="status-dot"
@@ -380,7 +453,7 @@ function ConnectPrompt() {
         <div className="connect-preview" aria-hidden="true">
           <div className="preview-header">
             <span>Cycle preview</span>
-            <strong>$0.85</strong>
+            <strong>$0.003</strong>
           </div>
           {[
             ["Roster", "Encrypted salary fetch", RosterIcon],

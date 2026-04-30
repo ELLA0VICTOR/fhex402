@@ -119,6 +119,8 @@ export function runComplianceCheck(employee) {
     taxBand,
     taxExempt,
     jurisdiction: employee.jurisdiction,
+    encryptedSalary: employee.encryptedSalary,
+    encryptedAmountRef: employee.encryptedSalary,
     employedDays,
     issues,
     criticalCount: criticalIssues.length,

@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { employees } from "./data/employees.js";
+import { getActiveRoster, getRosterSummary, replaceRoster } from "./rosterStore.js";
 import {
   createX402Middleware,
   error,
@@ -10,19 +10,35 @@ import {
   success,
 } from "../shared/middleware.js";
 import { computeRosterHash } from "../shared/crypto.js";
+import { isLiveMode, requireAddress } from "../shared/env.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3001;
-const SERVICE_WALLET =
-  process.env.ROSTER_WALLET_ADDRESS || "0x0000000000000000000000000000000000000001";
-const PAYMENT_AMOUNT = "100000";
-const PAYMENT_PRICE = "$0.10";
+const SERVICE_WALLET = isLiveMode()
+  ? requireAddress("ROSTER_WALLET_ADDRESS")
+  : process.env.ROSTER_WALLET_ADDRESS || "0x0000000000000000000000000000000000000001";
+const PAYMENT_AMOUNT = "1000";
+const PAYMENT_PRICE = "$0.001";
+const ADMIN_TOKEN = process.env.ROSTER_ADMIN_TOKEN;
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(requestLogger("RosterAPI"));
+
+function requireAdmin(req, res, next) {
+  if (!ADMIN_TOKEN) {
+    return error(res, "ROSTER_ADMIN_TOKEN is not configured", 503);
+  }
+
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, "") || req.headers["x-admin-token"];
+  if (token !== ADMIN_TOKEN) {
+    return error(res, "Unauthorized roster administration request", 401);
+  }
+
+  next();
+}
 
 const x402Middleware = createX402Middleware({
   method: "GET",
@@ -35,10 +51,10 @@ const x402Middleware = createX402Middleware({
 });
 
 app.get("/roster", x402Middleware, (req, res) => {
-  const activeEmployees = employees.filter((e) => e.active);
+  const activeEmployees = getActiveRoster();
 
   if (activeEmployees.length === 0) {
-    return error(res, "No active employees in roster", 404);
+    return error(res, "No active employees configured in RosterAPI", 404);
   }
 
   const roster = activeEmployees.map((emp) => ({
@@ -52,7 +68,7 @@ app.get("/roster", x402Middleware, (req, res) => {
     level: emp.level,
     encryptedSalary: emp.encryptedSalary,
     taxBand: emp.taxBand,
-    paymentCurrency: "USDC",
+    paymentCurrency: emp.paymentCurrency || "gcUSDT",
   }));
 
   const rosterHash = computeRosterHash(roster);
@@ -69,17 +85,41 @@ app.get("/roster", x402Middleware, (req, res) => {
 });
 
 app.get("/health", (req, res) => {
+  const summary = getRosterSummary();
   return success(res, {
     service: "RosterAPI",
-    status: "online",
+    status: summary.configured ? "online" : "needs_roster",
     port: PORT,
     x402: true,
     x402Version: 2,
     price: `${PAYMENT_PRICE} USDC per request`,
     payTo: SERVICE_WALLET,
-    employeeCount: employees.filter((e) => e.active).length,
+    employeeCount: summary.activeEmployees,
+    departments: summary.departments,
+    jurisdictions: summary.jurisdictions,
+    rosterConfigured: summary.configured,
+    rosterSource: summary.source,
     uptime: process.uptime(),
   });
+});
+
+app.get("/summary", (req, res) => {
+  return success(res, {
+    service: "GhostPay RosterAPI",
+    summary: getRosterSummary(),
+  });
+});
+
+app.put("/admin/roster", requireAdmin, (req, res) => {
+  try {
+    const summary = replaceRoster(req.body);
+    return success(res, {
+      service: "GhostPay RosterAPI",
+      summary,
+    });
+  } catch (err) {
+    return error(res, err.message, 400);
+  }
 });
 
 app.get("/", (req, res) => {
@@ -89,17 +129,20 @@ app.get("/", (req, res) => {
     description: "Encrypted employee roster for payroll agents",
     endpoints: {
       "GET /roster": { payment: `${PAYMENT_PRICE} USDC`, description: "Fetch encrypted roster" },
+      "GET /summary": { payment: "free", description: "Roster readiness summary" },
+      "PUT /admin/roster": { payment: "free", description: "Replace encrypted roster using admin token" },
       "GET /health": { payment: "free", description: "Health check" },
     },
   });
 });
 
 app.listen(PORT, () => {
+  const summary = getRosterSummary();
   console.log("");
   console.log("[RosterAPI] ----------------------------------------");
   console.log(`[RosterAPI] Running on  http://localhost:${PORT}`);
   console.log(`[RosterAPI] Payment:    ${PAYMENT_PRICE} USDC -> ${SERVICE_WALLET.slice(0, 10)}...`);
-  console.log(`[RosterAPI] Employees:  ${employees.filter((e) => e.active).length} active`);
+  console.log(`[RosterAPI] Employees:  ${summary.activeEmployees} active`);
   console.log(`[RosterAPI] x402:       v2 (${process.env.DEMO_MODE === "false" ? "live" : "demo"})`);
   console.log("[RosterAPI] ----------------------------------------");
   console.log("");

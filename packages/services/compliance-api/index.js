@@ -9,15 +9,17 @@ import {
   requestLogger,
   success,
 } from "../shared/middleware.js";
+import { isLiveMode, requireAddress } from "../shared/env.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3002;
-const SERVICE_WALLET =
-  process.env.COMPLIANCE_WALLET_ADDRESS || "0x0000000000000000000000000000000000000002";
-const PAYMENT_AMOUNT = "250000";
-const PAYMENT_PRICE = "$0.25";
+const SERVICE_WALLET = isLiveMode()
+  ? requireAddress("COMPLIANCE_WALLET_ADDRESS")
+  : process.env.COMPLIANCE_WALLET_ADDRESS || "0x0000000000000000000000000000000000000002";
+const PAYMENT_AMOUNT = "1000";
+const PAYMENT_PRICE = "$0.001";
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());

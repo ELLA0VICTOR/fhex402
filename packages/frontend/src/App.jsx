@@ -7,6 +7,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { Payroll } from "@/pages/Payroll";
 import { Vault } from "@/pages/Vault";
 import { Audit } from "@/pages/Audit";
+import { Employee } from "@/pages/Employee";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +29,7 @@ export default function App() {
               <Route path="/payroll" element={<Payroll />} />
               <Route path="/vault" element={<Vault />} />
               <Route path="/audit" element={<Audit />} />
+              <Route path="/employee" element={<Employee />} />
             </Routes>
           </Layout>
         </BrowserRouter>

@@ -12,7 +12,7 @@ import { GhostIcon } from "@/components/icons";
 import { SEPOLIA_CHAIN_ID } from "@/constants";
 import { formatAddress } from "@/lib/utils";
 
-export function TopBar({ sidebarOpen, onToggleSidebar }) {
+export function TopBar({ sidebarOpen, showSidebarControls = false, onToggleSidebar }) {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
@@ -28,14 +28,16 @@ export function TopBar({ sidebarOpen, onToggleSidebar }) {
     <header className="app-topbar">
       <div className="topbar-inner">
         <div className="topbar-brand-row">
-          <button
-            type="button"
-            onClick={onToggleSidebar}
-            className="topbar-rail-toggle"
-            title={sidebarOpen ? "Hide navigation rail" : "Show navigation rail"}
-          >
-            {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
-          </button>
+          {showSidebarControls && (
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              className="topbar-rail-toggle"
+              title={sidebarOpen ? "Hide navigation rail" : "Show navigation rail"}
+            >
+              {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
+            </button>
+          )}
 
           <NavLink to="/" className="topbar-brand">
             <span className="topbar-brand-mark">

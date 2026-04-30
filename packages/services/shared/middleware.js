@@ -3,10 +3,11 @@ import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { createPublicClient, http } from "viem";
 import { sepolia } from "viem/chains";
+import { isLiveMode } from "./env.js";
 
 const X402_NETWORK = process.env.X402_NETWORK || "eip155:84532";
 const X402_FACILITATOR_URL =
-  process.env.X402_FACILITATOR_URL || "https://facilitator.x402.org";
+  process.env.X402_FACILITATOR_URL || "https://x402.org/facilitator";
 
 export const publicClient = createPublicClient({
   chain: sepolia,
@@ -29,10 +30,6 @@ export function error(res, message, statusCode = 400) {
   });
 }
 
-function isLiveX402() {
-  return process.env.X402_LIVE === "true" || process.env.DEMO_MODE === "false";
-}
-
 function decodeDemoPayment(header) {
   try {
     return JSON.parse(Buffer.from(header, "base64").toString("utf8"));
@@ -50,7 +47,7 @@ export function createX402Middleware({
   serviceName,
   port,
 }) {
-  if (isLiveX402()) {
+  if (isLiveMode()) {
     const facilitator = new HTTPFacilitatorClient({ url: X402_FACILITATOR_URL });
     const resourceServer = new x402ResourceServer(facilitator).register(
       X402_NETWORK,
@@ -116,7 +113,7 @@ export function paymentSummary(amount, price) {
     amount,
     price,
     currency: "USDC",
-    mode: isLiveX402() ? "live" : "demo",
+    mode: isLiveMode() ? "live" : "demo",
   };
 }
 

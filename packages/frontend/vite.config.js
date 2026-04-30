@@ -37,6 +37,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/api\/disburse/, ""),
       },
+      "/api/agent": {
+        target: "http://localhost:3004",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/agent/, ""),
+      },
     },
   },
 });

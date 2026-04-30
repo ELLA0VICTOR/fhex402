@@ -103,6 +103,8 @@ export const AGENT_VAULT_ABI = [
 export const CONFIDENTIAL_PAYROLL_ABI = [
   { name: "employer", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
   { name: "agentVault", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
+  { name: "agent", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
+  { name: "settlementToken", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
   { name: "getEmployeeCount", type: "function", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "view" },
   { name: "isActive", type: "function", inputs: [{ name: "wallet", type: "address" }], outputs: [{ type: "bool" }], stateMutability: "view" },
   { name: "getLastPaidCycle", type: "function", inputs: [{ name: "wallet", type: "address" }], outputs: [{ type: "uint256" }], stateMutability: "view" },
@@ -126,8 +128,53 @@ export const CONFIDENTIAL_PAYROLL_ABI = [
     outputs: [],
     stateMutability: "nonpayable",
   },
+  {
+    name: "settleEmployee",
+    type: "function",
+    inputs: [{ name: "wallet", type: "address" }, { name: "cycleId", type: "uint256" }],
+    outputs: [{ name: "encryptedAmountHandle", type: "bytes32" }],
+    stateMutability: "nonpayable",
+  },
   { name: "employeeList", type: "function", inputs: [{ name: "", type: "uint256" }], outputs: [{ type: "address" }], stateMutability: "view" },
   { name: "EmployeeAdded", type: "event", inputs: [{ name: "employee", type: "address", indexed: true }, { name: "timestamp", type: "uint256", indexed: false }] },
+  { name: "PaymentDispatched", type: "event", inputs: [{ name: "employee", type: "address", indexed: true }, { name: "cycleId", type: "uint256", indexed: true }, { name: "encryptedAmountHandle", type: "bytes32", indexed: false }, { name: "timestamp", type: "uint256", indexed: false }] },
+];
+
+export const GHOST_PAYROLL_TOKEN_ABI = [
+  { name: "name", type: "function", inputs: [], outputs: [{ type: "string" }], stateMutability: "view" },
+  { name: "symbol", type: "function", inputs: [], outputs: [{ type: "string" }], stateMutability: "view" },
+  { name: "decimals", type: "function", inputs: [], outputs: [{ type: "uint8" }], stateMutability: "view" },
+  { name: "owner", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
+  { name: "agent", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
+  { name: "payrollContract", type: "function", inputs: [], outputs: [{ type: "address" }], stateMutability: "view" },
+  { name: "receiptCount", type: "function", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "view" },
+  { name: "getEncryptedBalance", type: "function", inputs: [{ name: "account", type: "address" }], outputs: [{ type: "bytes32" }], stateMutability: "view" },
+  { name: "getEncryptedTotalSupply", type: "function", inputs: [], outputs: [{ type: "bytes32" }], stateMutability: "view" },
+  { name: "getEncryptedTotalSettled", type: "function", inputs: [], outputs: [{ type: "bytes32" }], stateMutability: "view" },
+  {
+    name: "fundTreasury",
+    type: "function",
+    inputs: [
+      { name: "encryptedAmount", type: "bytes32" },
+      { name: "inputProof", type: "bytes" },
+    ],
+    outputs: [{ name: "encryptedAmountHandle", type: "bytes32" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    name: "getReceipt",
+    type: "function",
+    inputs: [{ name: "receiptId", type: "uint256" }],
+    outputs: [
+      { name: "from", type: "address" },
+      { name: "to", type: "address" },
+      { name: "cycleId", type: "uint256" },
+      { name: "timestamp", type: "uint256" },
+      { name: "encryptedAmountHandle", type: "bytes32" },
+      { name: "operator", type: "address" },
+    ],
+    stateMutability: "view",
+  },
 ];
 
 export const CONTRACTS = {
@@ -138,6 +185,10 @@ export const CONTRACTS = {
   ConfidentialPayroll: {
     abi: CONFIDENTIAL_PAYROLL_ABI,
     address: import.meta.env.VITE_CONFIDENTIAL_PAYROLL_ADDRESS,
+  },
+  GhostPayrollToken: {
+    abi: GHOST_PAYROLL_TOKEN_ABI,
+    address: import.meta.env.VITE_CONFIDENTIAL_PAYROLL_TOKEN_ADDRESS,
   },
 };
 

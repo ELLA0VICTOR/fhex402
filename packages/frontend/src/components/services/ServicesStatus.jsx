@@ -1,9 +1,9 @@
 import { ComplianceIcon, DisbursIcon, RefreshIcon, RosterIcon } from "@/components/icons";
 
 const SERVICE_META = {
-  roster: { label: "RosterAPI", Icon: RosterIcon, cost: "$0.10", port: 3001 },
-  compliance: { label: "ComplianceAPI", Icon: ComplianceIcon, cost: "$0.25", port: 3002 },
-  disburse: { label: "DisbursAPI", Icon: DisbursIcon, cost: "$0.50", port: 3003 },
+  roster: { label: "RosterAPI", Icon: RosterIcon, cost: "$0.001", port: 3001 },
+  compliance: { label: "ComplianceAPI", Icon: ComplianceIcon, cost: "$0.001", port: 3002 },
+  disburse: { label: "DisbursAPI", Icon: DisbursIcon, cost: "$0.001", port: 3003 },
 };
 
 export function ServicesStatus({ health, onRefresh }) {

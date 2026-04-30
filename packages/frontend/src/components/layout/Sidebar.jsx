@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { X } from "lucide-react";
+import { WalletCards, X } from "lucide-react";
 import { GhostIcon, PayrollIcon, ShieldIcon, VaultIcon } from "@/components/icons";
 
 const NAV = [
@@ -7,6 +7,7 @@ const NAV = [
   { path: "/payroll", label: "Payroll", Icon: PayrollIcon },
   { path: "/vault", label: "Vault", Icon: VaultIcon },
   { path: "/audit", label: "Audit", Icon: ShieldIcon },
+  { path: "/employee", label: "Employee", Icon: WalletCards },
 ];
 
 export function Sidebar({ open, onClose }) {

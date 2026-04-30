@@ -85,7 +85,7 @@ export function AgentPanel({ agentState, onRun, onReset, servicesOnline }) {
 
       <div className="flex items-center justify-between text-xs mono px-1" style={{ color: "var(--text-muted)" }}>
         <span>Per-cycle service cost</span>
-        <span style={{ color: "var(--text-secondary)" }}>$0.85 USDC</span>
+        <span style={{ color: "var(--text-secondary)" }}>$0.003 USDC</span>
       </div>
 
       {error && (

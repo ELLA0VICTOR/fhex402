@@ -134,7 +134,7 @@ contract fhex402Registry {
             name: "RosterAPI",
             endpoint: "http://localhost:3001/roster",
             description: "Encrypted employee roster for current pay cycle",
-            priceUSDC: 100000, // $0.10
+            priceUSDC: 1000, // $0.001
             payTo: address(0),
             active: true,
             registeredAt: block.timestamp
@@ -147,7 +147,7 @@ contract fhex402Registry {
             name: "ComplianceAPI",
             endpoint: "http://localhost:3002/check",
             description: "Jurisdiction, eligibility and tax band validation",
-            priceUSDC: 250000, // $0.25
+            priceUSDC: 1000, // $0.001
             payTo: address(0),
             active: true,
             registeredAt: block.timestamp
@@ -160,7 +160,7 @@ contract fhex402Registry {
             name: "DisbursAPI",
             endpoint: "http://localhost:3003/disburse",
             description: "Encrypted batch salary disbursement execution",
-            priceUSDC: 500000, // $0.50
+            priceUSDC: 1000, // $0.001
             payTo: address(0),
             active: true,
             registeredAt: block.timestamp
