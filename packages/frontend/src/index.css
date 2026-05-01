@@ -4834,3 +4834,47 @@ video {
     font-size: 36px !important;
   }
 }
+
+/* Agent log readability: messages get their own line at every width. */
+.log-line {
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  min-height: auto !important;
+  align-items: start !important;
+  padding-top: 15px !important;
+  padding-bottom: 15px !important;
+}
+
+.log-line-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.log-line-meta span,
+.log-line-meta strong {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.log-line p {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 !important;
+  line-height: 1.55 !important;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 640px) {
+  .log-line {
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+
+  .log-line-meta {
+    gap: 14px;
+  }
+}

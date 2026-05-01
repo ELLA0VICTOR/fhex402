@@ -367,15 +367,17 @@ function AgentLogPanel({ logs }) {
         ) : (
           logs.map((log) => (
             <div key={log.id} className={`log-line ${log.type}`}>
-              <span>
-                {new Date(log.timestamp).toLocaleTimeString("en", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: false,
-                })}
-              </span>
-              <strong>{log.type}</strong>
+              <div className="log-line-meta">
+                <span>
+                  {new Date(log.timestamp).toLocaleTimeString("en", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false,
+                  })}
+                </span>
+                <strong>{log.type}</strong>
+              </div>
               <p>{log.message}</p>
             </div>
           ))
