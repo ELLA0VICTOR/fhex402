@@ -97,7 +97,7 @@ sequenceDiagram
   Agent-->>UI: logs, receipts, status
 ```
 
-## n8n-Style Workflow
+## Workflow
 
 The payroll agent behaves like an automated workflow. Each node has a clear input, output, payment, and privacy boundary.
 
