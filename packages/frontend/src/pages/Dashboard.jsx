@@ -283,7 +283,7 @@ function VaultSummary({ vault, onDeposit }) {
 
       <div className="vault-balance">
         <span>Budget</span>
-        <strong>{budget === null ? "Encrypted" : `${budget.toLocaleString()} USDC`}</strong>
+        <strong>{budget === null ? "Encrypted" : `${budget.toLocaleString()} units`}</strong>
       </div>
 
       <div className="vault-progress">
@@ -291,7 +291,7 @@ function VaultSummary({ vault, onDeposit }) {
       </div>
 
       <div className="mini-stat-grid">
-        <MetricBox label="Spent" value={spent === null ? "-" : spent.toLocaleString()} sub="USDC" compact />
+        <MetricBox label="Spent" value={spent === null ? "-" : spent.toLocaleString()} sub="private units" compact />
         <MetricBox label="Cycles" value={cycleCount?.toString() ?? "0"} sub="complete" compact />
         <MetricBox label="Agent" value={agentActive ? "On" : "Idle"} sub="status" compact />
       </div>

@@ -21,10 +21,10 @@ export function VaultCard() {
 
   const hasDecryptedData = lastDecryptedBudget !== undefined && lastDecryptedBudget > 0n;
   const budgetDisplay = hasDecryptedData
-    ? `${(Number(lastDecryptedBudget) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC`
+    ? `${(Number(lastDecryptedBudget) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} units`
     : null;
   const spentDisplay = hasDecryptedData && lastDecryptedSpent > 0n
-    ? `${(Number(lastDecryptedSpent) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC`
+    ? `${(Number(lastDecryptedSpent) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} units`
     : null;
 
   async function handleRequestDecrypt() {

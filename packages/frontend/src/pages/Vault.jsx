@@ -41,13 +41,13 @@ export function Vault() {
   }
 
   const budgetDisplay = hasDecrypted
-    ? `${(Number(lastDecryptedBudget) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC`
+    ? `${(Number(lastDecryptedBudget) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} units`
     : null;
   const spentDisplay = hasDecrypted && lastDecryptedSpent > 0n
-    ? `${(Number(lastDecryptedSpent) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC`
+    ? `${(Number(lastDecryptedSpent) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} units`
     : null;
   const remainingDisplay = hasDecrypted
-    ? `${((Number(lastDecryptedBudget) - Number(lastDecryptedSpent)) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC`
+    ? `${((Number(lastDecryptedBudget) - Number(lastDecryptedSpent)) / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2 })} units`
     : null;
 
   return (
@@ -60,7 +60,7 @@ export function Vault() {
             Agent Vault
           </h1>
           <p className="page-subtitle">
-            FHE-encrypted payroll budget on Sepolia Testnet.
+            FHE-encrypted payroll budget limit on Sepolia Testnet.
           </p>
         </div>
         <button

@@ -286,7 +286,7 @@ export function Payroll() {
             type="text"
             value={treasuryFundUSDC}
             onChange={(event) => setTreasuryFundUSDC(event.target.value)}
-            placeholder="Treasury USDC optional"
+            placeholder="Treasury gcUSDT optional"
             className="input-clean"
           />
           <label className="btn-secondary h-11 px-4 text-sm font-bold cursor-pointer inline-flex items-center justify-center">

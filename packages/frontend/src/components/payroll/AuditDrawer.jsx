@@ -127,9 +127,9 @@ export function AuditDrawer({ open, onClose, agentState }) {
 
               <div className="space-y-2">
                 {[
-                  { label: "Total Budget", value: budgetVal ? `$${budgetVal.toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC` : "-", color: "var(--text-primary)" },
-                  { label: "Total Spent", value: spentVal ? `$${spentVal.toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC` : "-", color: "var(--red)" },
-                  { label: "Remaining", value: budgetVal && spentVal ? `$${(budgetVal - spentVal).toLocaleString("en-US", { minimumFractionDigits: 2 })} USDC` : "-", color: "var(--green)" },
+                  { label: "Total Budget", value: budgetVal ? `${budgetVal.toLocaleString("en-US", { minimumFractionDigits: 2 })} units` : "-", color: "var(--text-primary)" },
+                  { label: "Total Spent", value: spentVal ? `${spentVal.toLocaleString("en-US", { minimumFractionDigits: 2 })} units` : "-", color: "var(--red)" },
+                  { label: "Remaining", value: budgetVal && spentVal ? `${(budgetVal - spentVal).toLocaleString("en-US", { minimumFractionDigits: 2 })} units` : "-", color: "var(--green)" },
                 ].map(({ label, value, color }) => (
                   <div
                     key={label}

@@ -126,8 +126,8 @@ export function Audit() {
             {/* Encrypted state display */}
             <div className="space-y-2">
               {[
-                { label: "encryptedBudget", cipher: "0x1a4f8b2c9d3e7f01", decrypted: budget ? `${budget.toLocaleString()} USDC` : null },
-                { label: "encryptedSpent",  cipher: "0x3c6b0d4e1f5a9b2c", decrypted: spent  ? `${spent.toLocaleString()} USDC`  : null },
+                { label: "encryptedBudget", cipher: "0x1a4f8b2c9d3e7f01", decrypted: budget ? `${budget.toLocaleString()} units` : null },
+                { label: "encryptedSpent",  cipher: "0x3c6b0d4e1f5a9b2c", decrypted: spent  ? `${spent.toLocaleString()} units`  : null },
               ].map(({ label, cipher, decrypted }) => (
                 <div key={label}>
                   <div className="text-[10px] font-mono mb-1" style={{ color: "var(--text-muted)" }}>
@@ -199,9 +199,10 @@ export function Audit() {
                 Decrypted Summary
               </span>
               {[
-                { label: "Total Budget",    value: `$${budget.toFixed(2)} USDC`,                                   color: "var(--text-primary)" },
-                { label: "Total Spent",     value: spent ? `$${spent.toFixed(2)} USDC` : "$0.00",                  color: "var(--red)" },
-                { label: "Remaining",       value: `$${(budget - (spent || 0)).toFixed(2)} USDC`,                  color: "var(--green)" },
+                { label: "Total Budget",    value: `${budget.toFixed(2)} units`,                                  color: "var(--text-primary)" },
+                { label: "Total Budget",    value: `${budget.toFixed(2)} units`,                                  color: "var(--text-primary)" },
+                { label: "Total Spent",     value: spent ? `${spent.toFixed(2)} units` : "0.00 units",            color: "var(--red)" },
+                { label: "Remaining",       value: `${(budget - (spent || 0)).toFixed(2)} units`,                 color: "var(--green)" },
                 { label: "Service Costs",   value: "$0.003 USDC",                                                  color: "var(--accent)" },
                 { label: "Cycles Run",      value: cycleCount?.toString() ?? "0",                                  color: "var(--text-secondary)" },
               ].map(({ label, value, color }) => (

@@ -19,7 +19,7 @@ export function DepositModal({ open, onClose }) {
 
   async function handleDeposit() {
     if (!amount || Number.isNaN(Number(amount)) || Number(amount) <= 0) {
-      setError("Enter a valid USDC amount");
+      setError("Enter a valid payroll budget amount");
       return;
     }
 
@@ -69,7 +69,7 @@ export function DepositModal({ open, onClose }) {
                 Deposit budget
               </div>
               <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Encrypt USDC budget before it goes on-chain
+                Encrypt a private payroll budget before it goes on-chain
               </div>
             </div>
           </div>
@@ -81,7 +81,7 @@ export function DepositModal({ open, onClose }) {
         <div className="surface-row flex items-start gap-3 p-3 text-sm">
           <ShieldIcon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--green)" }} />
           <span style={{ color: "var(--text-secondary)" }}>
-            The contract stores only an encrypted budget handle. Raw amounts stay private.
+            This does not transfer faucet USDC or gcUSDT from your wallet. The contract stores only an encrypted budget limit.
           </span>
         </div>
 
@@ -104,7 +104,7 @@ export function DepositModal({ open, onClose }) {
               min="0"
               step="100"
             />
-            <span className="mono text-xs" style={{ color: "var(--text-muted)" }}>USDC</span>
+            <span className="mono text-xs" style={{ color: "var(--text-muted)" }}>private units</span>
           </div>
 
           <div className="grid grid-cols-4 gap-2">
