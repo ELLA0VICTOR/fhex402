@@ -357,17 +357,18 @@ http://localhost:5173
 
 GhostPay includes a roster upload flow so judges can test with their own CSV instead of only using the prepared demo roster.
 
-Roster upload is protected by `ROSTER_ADMIN_TOKEN`. The real token is intentionally not committed to this public repository because it lets anyone replace the active demo roster. For judging, share the temporary token privately in the hackathon submission form or private notes.
+Roster upload is protected by `ROSTER_ADMIN_TOKEN`. For judging/testnet review, the temporary demo API key is included in [`SUBMISSION_NOTES.example.md`](./SUBMISSION_NOTES.example.md) so reviewers can confirm the protected flow works.
 
 Judge flow:
 
 1. Open the live frontend.
 2. Connect a company wallet on Ethereum Sepolia.
 3. Go to Payroll.
-4. Paste the private roster admin token.
-5. Upload the CSV roster.
-6. Prepare the encrypted roster.
-7. Run the payroll cycle from Dashboard.
+4. Open `SUBMISSION_NOTES.example.md` and copy the judge testing API key.
+5. Paste the API key into the roster/admin field.
+6. Upload the CSV roster.
+7. Prepare the encrypted roster.
+8. Run the payroll cycle from Dashboard.
 
 ## Production Deployment Notes
 
